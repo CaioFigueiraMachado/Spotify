@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Spotify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #121212;
+            color: white;
+        }
+        
+        .btn-black {
+            background-color: #000000;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-black:hover {
+            transform: scale(1.04);
+            border: 1px solid white;
+        }
+        
+        .btn-white {
+            background-color: white;
+            color: black;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-white:hover {
+            transform: scale(1.04);
+        }
+        
+        .btn-green {
+            background-color: #1DB954;
+            color: black;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-green:hover {
+            transform: scale(1.04);
+            background-color: #1ed760;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #a0a0a0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #a0a0a0;
+        }
+
+        .divider::before {
+            margin-right: 1em;
+        }
+
+        .divider::after {
+            margin-left: 1em;
+        }
+        
+        .form-input {
+            background-color: #121212;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: white;
+            outline: none;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            accent-color: #1DB954;
+        }
+
+        .logo {
+            width: 100px;
+            margin: 0 auto 40px;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            border: 2px solid #1DB954;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-black py-8">
+        <div class="container mx-auto px-6">
+         <img src="img/350093727_1273716926578898_8475618412608319972_n.png" alt="Logo Spotify" class="logo">
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center py-10 px-4">
+        <div class="bg-black bg-opacity-70 rounded-lg p-10 max-w-md w-full">
+            <h1 class="text-3xl font-bold mb-8 text-center">Entre no spotify</h1>
+            
+            <!-- Social Login Buttons -->
+            <div class="space-y-4 mb-8">
+                <button class="btn-white rounded-full py-3 px-8 font-bold w-full flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Continue com o Google
+                </button>
+                <button class="btn-black rounded-full py-3 px-8 font-bold w-full flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22.5 12.5c0-5.52-4.48-10-10-10s-10 4.48-10 10c0 4.84 3.44 8.87 8 9.8V15.5H8v-3h2.5v-2.5c0-2.5 1.5-4 4-4s2.5 1 2.5 1v2h-1.5c-1 0-1.5.5-1.5 1.5v2h2.75l-.5 3h-2.25v6.3c4.56-.93 8-4.96 8-9.8z"/>
+                    </svg>
+                    Continue com o Facebook
+                </button>
+                <button class="btn-black rounded-full py-3 px-8 font-bold w-full flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/>
+                    </svg>
+                    Continue com o Apple
+                </button>
+                <button class="btn-black rounded-full py-3 px-8 font-bold w-full flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 1.95c-5.52 0-10 4.48-10 10s4.48 10 10 10h5v-2h-5c-4.34 0-8-3.66-8-8s3.66-8 8-8 8 3.66 8 8v1.43c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57v-1.43c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5c1.38 0 2.64-.56 3.54-1.47.65.89 1.77 1.47 2.96 1.47 1.97 0 3.5-1.6 3.5-3.57v-1.43c0-5.52-4.48-10-10-10zm0 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+                    </svg>
+                    Continue com o número de telefone
+                </button>
+            </div>
+            
+            <!-- Divider -->
+            <div class="divider mb-8">
+                <span>or</span>
+            </div>
+            
+            <!-- Login Form -->
+            <form class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium mb-2">Email ou nome de usuario</label>
+                    <input type="email" id="email" class="form-input w-full px-4 py-3 rounded" placeholder="Email or username">
+                </div>
+                
+                
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="remember" checked>
+                    <label for="remember" class="text-sm">Lembre-me</label>
+                </div>
+                
+                <button type="submit" class="btn-green rounded-full py-3 px-8 font-bold w-full">Entrar</button>
+                
+                <div class="text-center">
+                    <a href="#" class="text-white hover:underline text-sm">Esqueceu a senha?</a>
+                </div>
+            </form>
+            
+            <!-- Sign Up Link -->
+            <div class="mt-10 pt-6 border-t border-gray-700 text-center">
+                <p class="text-gray-400 mb-4">Não tem uma conta?</p>
+                <a href="#" class="btn-black rounded-full py-3 px-8 font-bold inline-block w-full text-center">Inscreva-se no Spotify</a>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-black py-6 text-center text-xs text-gray-400">
+        <p>Este site é protegido pelo reCAPTCHA e a Política de Privacidade e os Termos de Serviço do Google se aplicam.</p>
+    </footer>
+    
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // In a real app, this would handle authentication
+            alert('Você está sendo redirecionado para a pagina inicial.');
+        });
+    </script>
+    <script>
+        document.querySelectorAll('.btn-white, .btn-black, .btn-green').forEach(button => {
+            button.addEventListener('click', () => {
+                window.location.href = 'homepage.html';
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'950bdf4df2eac585',t:'MTc1MDA5MzMxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify - Player Web</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .sidebar {
+            background-color: #000000;
+            height: 100%;
+        }
+        
+        .main-content {
+            background: linear-gradient(180deg, #1e3264 0%, #121212 25%);
+        }
+        
+        .playlist-card:hover, .artist-card:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .player-bar {
+            background-color: #181818;
+            border-top: 1px solid #282828;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background-color: #535353;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #1db954;
+            width: 30%;
+        }
+        
+        .volume-bar {
+            height: 4px;
+            background-color: #535353;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .volume {
+            height: 100%;
+            background-color: #1db954;
+            width: 70%;
+        }
+        
+        .nav-item:hover {
+            color: white;
+        }
+        
+        .btn-green {
+            background-color: #1db954;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-green:hover {
+            background-color: #1ed760;
+            transform: scale(1.05);
+        }
+        
+        .btn-outline {
+            border: 1px solid #a0a0a0;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline:hover {
+            border-color: white;
+            transform: scale(1.05);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+        
+        .card-play-button {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: #1db954;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        
+        .playlist-card:hover .card-play-button {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .artist-card:hover .card-play-button {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- Área Principal -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Barra Lateral -->
+        <div class="sidebar w-64 flex-shrink-0 overflow-y-auto p-6">
+            <!-- Logo -->
+            <div class="mb-8">
+                <svg viewBox="0 0 1134 340" class="w-32" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="white" d="M8 171.4c0 92.6 76.9 165.6 160.7 165.6 37.4 0 75.3-10.1 108.8-30.4l-46.5-89.9c-20.7 10.2-43.6 16.6-63.2 16.6-61.7 0-110.3-51.1-110.3-110.3S106.2 12.7 168 12.7s110.3 51.1 110.3 110.3v30.6L370 28.7h76.5l-125.7 176.7 105.7 149.3h-76.5l-105-148.2v148.2h-66.8V171.4zM512 28.7h-76.5v327.9h76.5V28.7zm-219.3 8.1c-10.4 0-19.2 8.8-19.2 19.2s8.8 19.2 19.2 19.2 19.2-8.8 19.2-19.2-8.8-19.2-19.2-19.2zM830.4 69.7c-11.3-15.4-25.4-28.1-42-37.8-16.7-9.7-35.4-14.5-56.4-14.5-20.9 0-39.6 4.8-56.4 14.5-16.7 9.7-30.7 22.4-42 37.8-11.3 15.4-16.9 32.3-16.9 50.8 0 18.5 5.6 35.4 16.9 50.8 11.3 15.4 25.4 28.1 42 37.8 16.7 9.7 35.4 14.5 56.4 14.5 20.9 0 39.6-4.8 56.4-14.5 16.7-9.7 30.7-22.4 42-37.8 11.3-15.4 16.9-32.3 16.9-50.8 0-18.5-5.6-35.4-16.9-50.8zm-45.8 82.9c-13.5 15.4-32.5 23.1-56.8 23.1-24.4 0-43.3-7.7-56.8-23.1-13.5-15.4-20.3-33.9-20.3-55.7 0-21.8 6.8-40.3 20.3-55.7 13.5-15.4 32.5-23.1 56.8-23.1 24.4 0 43.3 7.7 56.8 23.1 13.5 15.4 20.3 33.9 20.3 55.7 0 21.8-6.8 40.3-20.3 55.7zM1133.6 28.7h-76.5l-92.2 140.7V28.7h-76.5v327.9h76.5V256.6l28.6-40.9 74.8 140.8h86.5L1044.8 173l88.8-144.3z"/>
+                    <path fill="#1ED760" d="M170 170.7c-85.5 0-155 69.5-155 155s69.5 155 155 155 155-69.5 155-155-69.5-155-155-155zm71.1 223.9c-3.3 5.4-10.3 7.1-15.7 3.8-43-26.3-97.2-32.2-160.9-17.7-6.2 1.4-12.3-2.5-13.7-8.7-1.4-6.2 2.5-12.3 8.7-13.7 69.7-15.9 130.1-9.1 178.3 20.6 5.4 3.3 7.1 10.3 3.8 15.7zm19-42.3c-4.1 6.7-12.8 8.8-19.5 4.7-49.2-30.2-124.3-39-182.6-21.4-7.5 2.3-15.5-2-17.8-9.5-2.2-7.5 2-15.5 9.5-17.8 66.7-20.2 149.6-10.4 206.2 24.5 6.7 4.1 8.8 12.8 4.7 19.5zm1.6-44.1c-59-35-156.5-38.2-213-21.2-9 2.7-18.5-2.3-21.2-11.3-2.7-9 2.3-18.5 11.3-21.2 64.8-19.7 172.6-15.9 240.5 24.5 8.2 4.9 10.9 15.4 6 23.6-4.8 8.1-15.3 10.8-23.6 5.9z"/>
+                </svg>
+            </div>
+            
+            <!-- Navegação -->
+            <nav class="mb-8">
+                <ul class="space-y-3">
+                    <li>
+                        <a href="#" class="nav-item flex items-center text-white font-bold">
+                            <svg class="w-6 h-6 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 3L4 9V21H9V14H15V21H20V9L12 3Z" />
+                            </svg>
+                            Início
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item flex items-center text-gray-300 hover:text-white">
+                            <svg class="w-6 h-6 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" />
+                            </svg>
+                            Buscar
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item flex items-center text-gray-300 hover:text-white">
+                            <svg class="w-6 h-6 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 6H2V20C2 21.1 2.9 22 4 22H18V20H4V6ZM20 2H8C6.9 2 6 2.9 6 4V16C6 17.1 6.9 18 8 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H8V4H20V16ZM12 5.5V14.5L18 10L12 5.5Z" />
+                            </svg>
+                            Sua Biblioteca
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- Playlists -->
+            <div>
+                <div class="flex items-center mb-4">
+                    <div class="bg-gray-300 bg-opacity-10 p-2 rounded-sm mr-2">
+                        <svg class="w-4 h-4" fill="white" viewBox="0 0 24 24">
+                            <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                        </svg>
+                    </div>
+                    <span class="text-gray-300 font-medium flex items-center">Criar Playlist</span>
+                </div>
+                
+                <div class="flex items-center mb-6">
+                    <div class="bg-gradient-to-br from-purple-700 to-blue-300 p-2 rounded-sm mr-2">
+                        <svg class="w-4 h-4" fill="white" viewBox="0 0 24 24">
+                            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" />
+                        </svg>
+                    </div>
+                    <span class="text-gray-300 font-medium flex items-center">Músicas Curtidas <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" /></svg></span>
+                
+                </div>
+                
+                <div class="border-t border-gray-800 pt-4">
+                    <ul class="space-y-2">
+                                 
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white">Mix de Teto</a></li>
+                        <li><a href="artista.html" class="text-sm text-gray-400 hover:text-white">Teto</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white">Matuê</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white">Brandão</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white">Alee</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white">Brocasito</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white">Derek</a></li>
+            
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Conteúdo Principal -->
+        <div class="main-content flex-1 overflow-y-auto p-8">
+            <!-- Cabeçalho -->
+            <header class="flex justify-between items-center mb-8">
+                <div class="flex space-x-2">
+                    <button class="bg-black bg-opacity-70 rounded-full p-1">
+                        <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                            <path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z" />
+                        </svg>
+                    </button>
+                    <button class="bg-black bg-opacity-70 rounded-full p-1">
+                        <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L10 18L16 12L10 6L8.59 7.41L13.17 12L8.59 16.59Z" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="flex items-center">
+                    <button class="btn-outline text-white py-1 px-4 rounded-full text-sm mr-4">Upgrade</button>
+                    <div class="bg-black bg-opacity-70 rounded-full flex items-center py-1 px-2">
+                        <div class="bg-gray-600 rounded-full w-6 h-6 flex items-center justify-center mr-2">
+                            <svg class="w-4 h-4" fill="white" viewBox="0 0 24 24">
+                                <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" />
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">Usuário</span>
+                        <svg class="w-4 h-4 ml-1" fill="white" viewBox="0 0 24 24">
+                            <path d="M7 10L12 15L17 10H7Z" />
+                        </svg>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Boa Tarde Seção -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold mb-4">Boa tarde</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="bg-[#181818] bg-opacity-60 hover:bg-opacity-80 transition-all rounded flex items-center overflow-hidden cursor-pointer">
+                        <div class="w-20 h-20 bg-purple-700 flex-shrink-0">
+                            <svg class="w-full h-full" viewBox="0 0 24 24" fill="none">
+                                <rect width="24" height="24" fill="#5038a0"/>
+                                <circle cx="12" cy="12" r="6" fill="#8758FF"/>
+                            </svg>
+                        </div>
+                        <span class="font-bold ml-4 flex items-center">Músicas Curtidas <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" /></svg></span>
+                    </div>
+                    
+                       
+            </section>
+            
+            <!-- Feito Para Você Seção -->
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Feito para você</h2>
+                    <a href="#" class="text-sm text-gray-400 font-bold hover:underline">VER TODOS</a>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-purple-500 to-blue-500 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Mix Diária 1</h3>
+                        <p class="text-sm text-gray-400">Mix personalizada com o Brandão Artista B e mais</p>
+                    </div>
+                    
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-green-500 to-blue-500 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Mix Diária 2</h3>
+                        <p class="text-sm text-gray-400">Mix personalizada com o Matuê e mais</p>
+                    </div>
+                    
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-red-500 to-yellow-500 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Descubra Semanalmente</h3>
+                        <p class="text-sm text-gray-400">Sua mixtape semanal de músicas novas</p>
+                    </div>
+                    
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-blue-500 to-purple-500 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Radar de Lançamentos</h3>
+                        <p class="text-sm text-gray-400">Fique por dentro das últimas músicas dos artistas que você segue</p>
+                    </div>
+                    
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-pink-500 to-orange-500 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Chill Mix</h3>
+                        <p class="text-sm text-gray-400">Músicas relaxantes para te ajudar a descontrair</p>
+                    </div>
+                    
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-indigo-500 to-teal-500 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Foco Total</h3>
+                        <p class="text-sm text-gray-400">Músicas para te ajudar a se concentrar</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Recentemente Tocado Seção -->
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Recentemente tocado</h2>
+                    <a href="#" class="text-sm text-gray-400 font-bold hover:underline">VER TODOS</a>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-yellow-500 to-red-500 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Hits do Verão</h3>
+                        <p class="text-sm text-gray-400">Principais músicas da temporada</p>
+                    </div>
+                    
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-blue-700 to-blue-400 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Impulsione o Humor</h3>
+                        <p class="text-sm text-gray-400">Músicas animadas para levantar seu astral</p>
+                    </div>
+                    
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-purple-800 to-purple-500 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Sons para Dormir</h3>
+                        <p class="text-sm text-gray-400">Sons ambientes para uma noite de sono melhor</p>
+                    </div>
+                    
+                    <div class="playlist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            <div class="aspect-square bg-gradient-to-br from-green-600 to-green-300 rounded shadow-lg">
+                                <svg class="w-full h-full p-8" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12ZM10 19C8.9 19 8 18.1 8 17C8 15.9 8.9 15 10 15C11.1 15 12 15.9 12 17C12 18.1 11.1 19 10 19Z" />
+                                </svg>
+                            </div>
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h3 class="font-bold mb-1">Energia para Treino</h3>
+                        <p class="text-sm text-gray-400">Músicas para te dar energia durante o treino</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Artistas Populares Seção -->
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Artistas populares</h2>
+                    <a href="#" class="text-sm text-gray-400 font-bold hover:underline">VER TODOS</a>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                    
+                    
+                    <div class="artist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            
+                           
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <img src="img/teto1.png" alt="">
+                        <h3 class="font-bold mb-1 text-center">Teto</h3>
+                        <p class="text-sm text-gray-400 text-center">Artista</p>
+                    </div>
+                    
+                    <div class="artist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <img src="img/matue1.png" alt="">
+                        <h3 class="font-bold mb-1 text-center">Matuê</h3>
+                        <p class="text-sm text-gray-400 text-center">Artista</p>
+                    </div>
+                    
+                    <div class="artist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                           
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <img src="img/ryu1.png" alt="">
+                        <h3 class="font-bold mb-1 text-center">Ryu, the runner</h3>
+                        <p class="text-sm text-gray-400 text-center">Artista</p>
+                    </div>
+                    
+                    <div class="artist-card bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all cursor-pointer group">
+                        <div class="relative mb-4">
+                            
+                            <button class="card-play-button">
+                                <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 5V19L19 12L8 5Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <img src="img/brandao1.png" alt="">
+                        <h3 class="font-bold mb-1 text-center">Brandão</h3>
+                        <p class="text-sm text-gray-400 text-center">Artista</p>
+                    </div>
+                    
+                   
+                </div>
+            </section>
+            
+            <!-- Gêneros Seção -->
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Navegar por gênero</h2>
+                    <a href="#" class="text-sm text-gray-400 font-bold hover:underline">VER TODOS</a>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div class="bg-pink-600 rounded-lg p-5 h-40 flex items-end cursor-pointer hover:bg-opacity-80 transition-all">
+                        <h3 class="text-2xl font-bold">Pop</h3>
+                    </div>
+                    <div class="bg-blue-600 rounded-lg p-5 h-40 flex items-end cursor-pointer hover:bg-opacity-80 transition-all">
+                        <h3 class="text-2xl font-bold">Hip-Hop</h3>
+                    </div>
+                    <div class="bg-green-600 rounded-lg p-5 h-40 flex items-end cursor-pointer hover:bg-opacity-80 transition-all">
+                        <h3 class="text-2xl font-bold">Rock</h3>
+                    </div>
+                    <div class="bg-purple-600 rounded-lg p-5 h-40 flex items-end cursor-pointer hover:bg-opacity-80 transition-all">
+                        <h3 class="text-2xl font-bold">Eletrônica</h3>
+                    </div>
+                    <div class="bg-yellow-600 rounded-lg p-5 h-40 flex items-end cursor-pointer hover:bg-opacity-80 transition-all">
+                        <h3 class="text-2xl font-bold">Jazz</h3>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <!-- Barra do Player -->
+    <div class="player-bar h-24 flex items-center px-4">
+        <div class="flex items-center w-1/4">
+            <div class="w-14 h-14 bg-gray-600 mr-3 flex-shrink-0">
+                <svg class="w-full h-full" viewBox="0 0 24 24" fill="none">
+                    <rect width="24" height="24" fill="#5038a0"/>
+                    <path d="M12 8C13.1 8 14 7.1 14 6C14 4.9 13.1 4 12 4C10.9 4 10 4.9 10 6C10 7.1 10.9 8 12 8ZM12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10ZM12 16C10.9 16 10 16.9 10 18C10 19.1 10.9 20 12 20C13.1 20 14 19.1 14 18C14 16.9 13.1 16 12 16Z" fill="white"/>
+                </svg>
+            </div>
+            <div>
+                <h4 class="font-medium text-sm">Título da Música</h4>
+                <p class="text-xs text-gray-400">Nome do Artista</p>
+            </div>
+            <button class="ml-4 text-gray-400 hover:text-white">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="flex-1 flex flex-col items-center justify-center">
+            <div class="flex items-center mb-2">
+                <button class="mx-2 text-gray-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 6H2V18H6V6ZM12 6H8V18H12V6ZM18 6H14V18H18V6ZM24 6H20V18H24V6Z" />
+                    </svg>
+                </button>
+                <button class="mx-2 text-gray-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 6H2V18H6V6ZM12 6H8V18H12V6Z" />
+                    </svg>
+                </button>
+                <button class="mx-2 bg-white rounded-full p-2">
+                    <svg class="w-6 h-6" fill="black" viewBox="0 0 24 24">
+                        <path d="M8 5V19L19 12L8 5Z" />
+                    </svg>
+                </button>
+                <button class="mx-2 text-gray-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18 18H22V6H18V18ZM12 18H16V6H12V18Z" />
+                    </svg>
+                </button>
+                <button class="mx-2 text-gray-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 7H17V10L22 5L17 0V3H5V11H7V7ZM17 17H7V14L2 19L7 24V21H19V13H17V17Z" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="w-full flex items-center px-4">
+                <span class="text-xs text-gray-400 mr-2">1:23</span>
+                <div class="progress-bar flex-1">
+                    <div class="progress"></div>
+                </div>
+                <span class="text-xs text-gray-400 ml-2">3:45</span>
+            </div>
+        </div>
+        
+        <div class="w-1/4 flex items-center justify-end">
+            <button class="mx-2 text-gray-400 hover:text-white">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 9V15H7L12 20V4L7 9H3ZM16.5 12C16.5 10.23 15.48 8.71 14 7.97V16.02C15.48 15.29 16.5 13.77 16.5 12ZM14 3.23V5.29C16.89 6.15 19 8.83 19 12C19 15.17 16.89 17.85 14 18.71V20.77C18.01 19.86 21 16.28 21 12C21 7.72 18.01 4.14 14 3.23Z" />
+                </svg>
+            </button>
+            <div class="w-24">
+                <div class="volume-bar">
+                    <div class="volume"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'950bda6e17e0c585',t:'MTc1MDA5MzExOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
